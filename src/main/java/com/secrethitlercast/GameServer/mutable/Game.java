@@ -209,7 +209,7 @@ public class Game {
     gameStateBuilder.updateHiddenDataFor(hitler, hiddenDataBuilder -> {
       hiddenDataBuilder.secretRole(SecretRole.HITLER);
       if (board.hitlerKnowsFascists()) {
-        hiddenDataBuilder.knownFascists(fascists);
+        hiddenDataBuilder.knownFascists(fascists).knownLiberals(liberals);
       }
     });
     fascists.forEach(fascist -> gameStateBuilder.updateHiddenDataFor(fascist,
