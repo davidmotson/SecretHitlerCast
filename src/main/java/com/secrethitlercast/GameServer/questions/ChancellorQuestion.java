@@ -19,12 +19,11 @@ public class ChancellorQuestion implements Question {
       ImmutableSet<User> termLimitedPlayers) {
     ImmutableSet<String> termLimitedPlayerNames =
         termLimitedPlayers.stream().map(User::getName).collect(toImmutableSet());
-    this.answers =
-        IntStream.range(0, allPlayers.size())
-            .mapToObj(i -> new Answer(i, allPlayers.get(i).getName()))
-            .filter(answer -> !answer.getAnswer().equals(user.getName()))
-            .filter(answer -> !termLimitedPlayerNames.contains(answer.getAnswer()))
-            .collect(ImmutableList.toImmutableList());
+    this.answers = IntStream.range(0, allPlayers.size())
+        .mapToObj(i -> new Answer(i, allPlayers.get(i).getName()))
+        .filter(answer -> !answer.getAnswer().equals(user.getName()))
+        .filter(answer -> !termLimitedPlayerNames.contains(answer.getAnswer()))
+        .collect(ImmutableList.toImmutableList());
   }
 
   @Override

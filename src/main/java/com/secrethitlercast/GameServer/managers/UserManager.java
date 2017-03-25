@@ -17,8 +17,8 @@ public class UserManager {
 
   @Inject
   public UserManager(CookieGenerator generator) {
-    this.userCache =
-        CacheBuilder.newBuilder().expireAfterAccess(20, TimeUnit.MINUTES).concurrencyLevel(3).build();
+    this.userCache = CacheBuilder.newBuilder().expireAfterAccess(20, TimeUnit.MINUTES)
+        .concurrencyLevel(3).build();
     this.generator = generator;
   }
 

@@ -8,7 +8,7 @@ import lombok.Value;
 public class JoinGameRequest {
   String name;
   String code;
-  
+
   public JoinGameRequest verify() {
     GameRuleException.checkNotNull(name, "name");
     GameRuleException.checkNotNull(code, "code");

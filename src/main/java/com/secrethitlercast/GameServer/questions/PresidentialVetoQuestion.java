@@ -6,14 +6,14 @@ import com.secrethitlercast.GameServer.domain.enums.State;
 
 public class PresidentialVetoQuestion implements Question {
   public static final int ID = 10;
-  
+
   public static final Answer VETO_ANSWER = new Answer(1, "Yes, Veto");
-  
+
   public static final Answer FORCE_LEGISLATION_ANSWER = new Answer(2, "No, Force Legislation");
 
-  private static final ImmutableList<Answer> ANSWERS = ImmutableList.of(VETO_ANSWER,
-      FORCE_LEGISLATION_ANSWER);
-  
+  private static final ImmutableList<Answer> ANSWERS =
+      ImmutableList.of(VETO_ANSWER, FORCE_LEGISLATION_ANSWER);
+
   private final ImmutableList<Party> possiblyVetoedPolicies;
 
   public PresidentialVetoQuestion(ImmutableList<Party> possiblyVetoedPolicies) {

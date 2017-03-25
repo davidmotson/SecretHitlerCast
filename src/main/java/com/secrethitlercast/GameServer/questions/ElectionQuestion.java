@@ -8,8 +8,9 @@ public class ElectionQuestion implements Question {
   public static final int ID = 2;
   public static final int YES_ID = 1;
   public static final int NO_ID = 2;
-  
-  private static final ImmutableList<Answer> ANSWERS = ImmutableList.of(new Answer(YES_ID, "JA (yes)"), new Answer(NO_ID, "NEIN (no)"));
+
+  private static final ImmutableList<Answer> ANSWERS =
+      ImmutableList.of(new Answer(YES_ID, "JA (yes)"), new Answer(NO_ID, "NEIN (no)"));
 
   private final User presidentialCandidate;
   private final User chancellorCandidate;

@@ -77,12 +77,8 @@ public class Game {
     GameRuleException.check(
         state.getPlayers().stream().map(User::getName).noneMatch(isEqual(user.getName())),
         "Somebody in the game already has your name");
-    state =
-        state
-            .toBuilder()
-            .player(user)
-            .updateHiddenDataFor(user,
-                gameStateBuilder -> gameStateBuilder.question(new PlayerReadyQuestion())).build();
+    state = state.toBuilder().player(user).updateHiddenDataFor(user,
+        gameStateBuilder -> gameStateBuilder.question(new PlayerReadyQuestion())).build();
     updateOutputByUsername();
   }
 
@@ -109,13 +105,10 @@ public class Game {
         break;
 
       case ChancellorQuestion.ID:
-        User chancellorCandidate =
-            state.getPlayers().stream().filter(user -> answer.getAnswer().equals(user.getName()))
-                .findFirst().get();
-        User presidentialCandidate =
-            GameRuleException.checkNotNull(
-                state.getCurrentCandidates().get(GovernmentRole.PRESIDENT),
-                "Presidential Candidate");
+        User chancellorCandidate = state.getPlayers().stream()
+            .filter(user -> answer.getAnswer().equals(user.getName())).findFirst().get();
+        User presidentialCandidate = GameRuleException.checkNotNull(
+            state.getCurrentCandidates().get(GovernmentRole.PRESIDENT), "Presidential Candidate");
         advanceStateToWaitingForElection(gameStateBuilder, chancellorCandidate,
             presidentialCandidate);
         break;
@@ -126,9 +119,8 @@ public class Game {
 
       case PresidentialLegislationQuestion.ID:
         User chancellor = state.getCurrentGovernment().get(GovernmentRole.CHANCELLOR);
-        List<Party> possibleAnswers =
-            question.getAnswers().stream().map(Answer::getId).map(Party::fromAnswer)
-                .collect(toList());
+        List<Party> possibleAnswers = question.getAnswers().stream().map(Answer::getId)
+            .map(Party::fromAnswer).collect(toList());
         Party removedAnswer = Party.fromAnswer(answerId);
         possibleAnswers.remove(removedAnswer);
         advanceStateToWaitingForChancellorLegislationQuestion(gameStateBuilder, chancellor,
@@ -136,10 +128,9 @@ public class Game {
         break;
 
       case ChancellorLegislationQuestion.ID:
-        possibleAnswers =
-            question.getAnswers().stream().map(Answer::getId)
-                .filter(answId -> answId != ChancellorLegislationQuestion.VETO_ANSWER.getId())
-                .map(Party::fromAnswer).collect(toList());
+        possibleAnswers = question.getAnswers().stream().map(Answer::getId)
+            .filter(answId -> answId != ChancellorLegislationQuestion.VETO_ANSWER.getId())
+            .map(Party::fromAnswer).collect(toList());
         User president = state.getCurrentGovernment().get(GovernmentRole.PRESIDENT);
         if (answerId == ChancellorLegislationQuestion.VETO_ANSWER.getId()) {
           advanceStateToWaitingForPresidentialVeto(gameStateBuilder, president,
@@ -165,17 +156,15 @@ public class Game {
         break;
 
       case SpecialElectionQuestion.ID:
-        User specialElectionPresidentialCandidate =
-            state.getPlayers().stream().filter(user -> answer.getAnswer().equals(user.getName()))
-                .findFirst().get();
+        User specialElectionPresidentialCandidate = state.getPlayers().stream()
+            .filter(user -> answer.getAnswer().equals(user.getName())).findFirst().get();
         advanceStateToWaitingForCandidates(gameStateBuilder,
             Optional.of(specialElectionPresidentialCandidate));
         break;
 
       case ExecutionQuestion.ID:
-        User playerToDie =
-            state.getPlayers().stream().filter(user -> answer.getAnswer().equals(user.getName()))
-                .findFirst().get();
+        User playerToDie = state.getPlayers().stream()
+            .filter(user -> answer.getAnswer().equals(user.getName())).findFirst().get();
         gameStateBuilder.deadPlayer(playerToDie);
         state = gameStateBuilder.build();
         advanceStateToWaitingForCandidates(gameStateBuilder, Optional.empty());
@@ -186,9 +175,8 @@ public class Game {
         break;
 
       case ExecutiveInvestigationTargetQuestion.ID:
-        User playerToInvestigate =
-            state.getPlayers().stream().filter(user -> answer.getAnswer().equals(user.getName()))
-                .findFirst().get();
+        User playerToInvestigate = state.getPlayers().stream()
+            .filter(user -> answer.getAnswer().equals(user.getName())).findFirst().get();
         advanceStateToWaitingForExecutiveInvestigationResult(gameStateBuilder, playerToInvestigate);
         break;
 
@@ -229,9 +217,9 @@ public class Game {
             .knownFascists(fascists).knownLiberals(liberals)));
     liberals.forEach(liberal -> gameStateBuilder.updateHiddenDataFor(liberal,
         hiddenDataBuilder -> hiddenDataBuilder.secretRole(SecretRole.LIBERAL)));
-    gameStateBuilder.randomPlayerOffset(
-        ThreadLocalRandom.current().nextInt(state.getPlayers().size())).policyDeck(
-        STARTING_POLICY_DECK.stream().collect(toShuffledList()));
+    gameStateBuilder
+        .randomPlayerOffset(ThreadLocalRandom.current().nextInt(state.getPlayers().size()))
+        .policyDeck(STARTING_POLICY_DECK.stream().collect(toShuffledList()));
     advanceStateToWaitingForCandidates(gameStateBuilder, Optional.empty());
   }
 
@@ -240,18 +228,16 @@ public class Game {
     gameStateBuilder.vote(player, vote);
     if (state.getVotes().entrySet().size() + 1 == state.getAlivePlayers().size()) {
       GameState protoState = gameStateBuilder.build();
-      long yesVotes =
-          protoState.getVotes().entrySet().stream()
-              .filter(entry -> entry.getValue().equals(Vote.YES)).collect(counting());
-      long noVotes =
-          protoState.getVotes().entrySet().stream()
-              .filter(entry -> entry.getValue().equals(Vote.NO)).collect(counting());
+      long yesVotes = protoState.getVotes().entrySet().stream()
+          .filter(entry -> entry.getValue().equals(Vote.YES)).collect(counting());
+      long noVotes = protoState.getVotes().entrySet().stream()
+          .filter(entry -> entry.getValue().equals(Vote.NO)).collect(counting());
 
       if (yesVotes > noVotes) {
         gameStateBuilder.clearCurrentGovernment()
             .currentGovernment(protoState.getCurrentCandidates()).clearCurrentCandidates();
-        advanceStateToWaitingForPresidentialLegislation(gameStateBuilder, protoState
-            .getCurrentCandidates().get(GovernmentRole.PRESIDENT));
+        advanceStateToWaitingForPresidentialLegislation(gameStateBuilder,
+            protoState.getCurrentCandidates().get(GovernmentRole.PRESIDENT));
       } else {
         incrementElectionTracker(gameStateBuilder, protoState);
       }
@@ -310,7 +296,8 @@ public class Game {
     }
   }
 
-  private void veto(GameStateBuilder gameStateBuilder, ImmutableList<Party> possiblyVetoedPolicies) {
+  private void veto(GameStateBuilder gameStateBuilder,
+      ImmutableList<Party> possiblyVetoedPolicies) {
     gameStateBuilder.discardPile(possiblyVetoedPolicies);
     incrementElectionTracker(gameStateBuilder, gameStateBuilder.build());
   }
@@ -321,46 +308,36 @@ public class Game {
       gameStateBuilder.incrementNumOfSpecialElections();
     }
     User presidentialCandidate = specialCandidate.orElse(state.getPresidentialCandidate());
-    gameStateBuilder
-        .clearCurrentCandidates()
-        .currentCandidate(GovernmentRole.PRESIDENT, presidentialCandidate)
-        .incrementRound()
-        .clearVotes()
-        .state(State.WAITING_FOR_CANDIDATES)
-        .updateHiddenDataFor(
-            presidentialCandidate,
+    gameStateBuilder.clearCurrentCandidates()
+        .currentCandidate(GovernmentRole.PRESIDENT, presidentialCandidate).incrementRound()
+        .clearVotes().state(State.WAITING_FOR_CANDIDATES).updateHiddenDataFor(presidentialCandidate,
             hiddenDataBuilder -> hiddenDataBuilder.question(new ChancellorQuestion(
                 presidentialCandidate, state.getAlivePlayers(), state.getTermLimitedPlayers())));
   }
 
   private void advanceStateToWaitingForElection(GameStateBuilder gameStateBuilder,
       User chancellorCandidate, User presidentialCandidate) {
-    gameStateBuilder.currentCandidate(GovernmentRole.CHANCELLOR, chancellorCandidate).state(
-        State.WAITING_FOR_ELECTION);
-    state.getAlivePlayers().forEach(
-        player -> gameStateBuilder.updateHiddenDataFor(player,
-            hiddenDataBuilder -> hiddenDataBuilder.question(new ElectionQuestion(
-                presidentialCandidate, chancellorCandidate))));
+    gameStateBuilder.currentCandidate(GovernmentRole.CHANCELLOR, chancellorCandidate)
+        .state(State.WAITING_FOR_ELECTION);
+    state.getAlivePlayers()
+        .forEach(player -> gameStateBuilder.updateHiddenDataFor(player,
+            hiddenDataBuilder -> hiddenDataBuilder
+                .question(new ElectionQuestion(presidentialCandidate, chancellorCandidate))));
   }
 
   private void advanceStateToWaitingForPresidentialLegislation(GameStateBuilder gameStateBuilder,
       User president) {
     ImmutableList<Party> policyDeck = state.getPolicyDeck();
     if (policyDeck.size() < 3) {
-      policyDeck =
-          ImmutableList.<Party>builder().addAll(policyDeck)
-              .addAll(state.getDiscardPile().stream().collect(toShuffledList())).build();
+      policyDeck = ImmutableList.<Party>builder().addAll(policyDeck)
+          .addAll(state.getDiscardPile().stream().collect(toShuffledList())).build();
       gameStateBuilder.clearDiscardPile();
     }
     ImmutableList<Party> policiesForPresident = policyDeck.subList(0, 3);
     ImmutableList<Party> newPolicyDeck = policyDeck.subList(3, policyDeck.size());
-    gameStateBuilder
-        .policyDeck(newPolicyDeck)
-        .state(State.WAITING_FOR_PRESIDENTIAL_LEGISLATION)
-        .updateHiddenDataFor(
-            president,
-            hiddenDataBuilder -> hiddenDataBuilder.question(new PresidentialLegislationQuestion(
-                policiesForPresident)));
+    gameStateBuilder.policyDeck(newPolicyDeck).state(State.WAITING_FOR_PRESIDENTIAL_LEGISLATION)
+        .updateHiddenDataFor(president, hiddenDataBuilder -> hiddenDataBuilder
+            .question(new PresidentialLegislationQuestion(policiesForPresident)));
   }
 
   private void advanceStateToWaitingForChancellorLegislationQuestion(
@@ -368,8 +345,7 @@ public class Game {
       ImmutableList<Party> policiesForChancellor, Optional<Party> presidentiallyRemovedPolicy,
       boolean vetoOverride) {
     presidentiallyRemovedPolicy.ifPresent(policy -> gameStateBuilder.discardPile(policy));
-    gameStateBuilder.state(State.WAITING_FOR_CHANCELLOR_LEGISLATION).updateHiddenDataFor(
-        chancellor,
+    gameStateBuilder.state(State.WAITING_FOR_CHANCELLOR_LEGISLATION).updateHiddenDataFor(chancellor,
         hiddenDataBuilder -> hiddenDataBuilder.question(new ChancellorLegislationQuestion(
             policiesForChancellor, vetoOverride ^ state.isVetoPowerEnabled())));
   }
@@ -377,52 +353,45 @@ public class Game {
 
   private void advanceStateToWaitingForPresidentialVeto(GameStateBuilder gameStateBuilder,
       User president, ImmutableList<Party> possibleAnswers) {
-    gameStateBuilder.state(State.WAITING_FOR_PRESIDENTIAL_VETO).updateHiddenDataFor(
-        president,
-        hiddenDataBuilder -> hiddenDataBuilder.question(new PresidentialVetoQuestion(
-            possibleAnswers)));
+    gameStateBuilder.state(State.WAITING_FOR_PRESIDENTIAL_VETO).updateHiddenDataFor(president,
+        hiddenDataBuilder -> hiddenDataBuilder
+            .question(new PresidentialVetoQuestion(possibleAnswers)));
   }
 
   private void advanceStateToWaitingForSpecialElection(GameStateBuilder gameStateBuilder) {
     User president = state.getCurrentGovernment().get(GovernmentRole.PRESIDENT);
-    gameStateBuilder.state(State.WAITING_FOR_SPECIAL_ELECTION).updateHiddenDataFor(
-        president,
-        hiddenDataBuilder -> hiddenDataBuilder.question(new SpecialElectionQuestion(president,
-            state.getAlivePlayers())));
+    gameStateBuilder.state(State.WAITING_FOR_SPECIAL_ELECTION).updateHiddenDataFor(president,
+        hiddenDataBuilder -> hiddenDataBuilder
+            .question(new SpecialElectionQuestion(president, state.getAlivePlayers())));
   }
 
   private void advanceStateToWaitingForExecution(GameStateBuilder gameStateBuilder) {
     User president = state.getCurrentGovernment().get(GovernmentRole.PRESIDENT);
-    gameStateBuilder.state(State.WAITING_FOR_EXECUTION).updateHiddenDataFor(
-        president,
-        hiddenDataBuilder -> hiddenDataBuilder.question(new ExecutionQuestion(president, state
-            .getAlivePlayers())));
+    gameStateBuilder.state(State.WAITING_FOR_EXECUTION).updateHiddenDataFor(president,
+        hiddenDataBuilder -> hiddenDataBuilder
+            .question(new ExecutionQuestion(president, state.getAlivePlayers())));
   }
 
   private void advanceStateToWaitingForPolicyPeek(GameStateBuilder gameStateBuilder) {
     User president = state.getCurrentGovernment().get(GovernmentRole.PRESIDENT);
     ImmutableList<Party> policyDeck = state.getPolicyDeck();
     if (policyDeck.size() < 3) {
-      policyDeck =
-          ImmutableList.<Party>builder().addAll(policyDeck)
-              .addAll(state.getDiscardPile().stream().collect(toShuffledList())).build();
+      policyDeck = ImmutableList.<Party>builder().addAll(policyDeck)
+          .addAll(state.getDiscardPile().stream().collect(toShuffledList())).build();
       gameStateBuilder.clearDiscardPile();
     }
     ImmutableList<Party> peekedPolicies = policyDeck.subList(0, 3);
-    gameStateBuilder
-        .state(State.WAITING_FOR_POLICY_PEEK)
-        .policyDeck(policyDeck)
-        .updateHiddenDataFor(president,
-            hiddenDataBuilder -> hiddenDataBuilder.question(new PolicyPeekQuestion(peekedPolicies)));
+    gameStateBuilder.state(State.WAITING_FOR_POLICY_PEEK).policyDeck(policyDeck)
+        .updateHiddenDataFor(president, hiddenDataBuilder -> hiddenDataBuilder
+            .question(new PolicyPeekQuestion(peekedPolicies)));
   }
 
 
   private void advanceStateToWaitingForExecutiveInvestigation(GameStateBuilder gameStateBuilder) {
     User president = state.getCurrentGovernment().get(GovernmentRole.PRESIDENT);
-    gameStateBuilder.state(State.WAITING_FOR_EXECUTIVE_INVESTIGATION).updateHiddenDataFor(
-        president,
-        hiddenDataBuilder -> hiddenDataBuilder.question(new ExecutiveInvestigationTargetQuestion(
-            president, state.getAlivePlayers())));
+    gameStateBuilder.state(State.WAITING_FOR_EXECUTIVE_INVESTIGATION).updateHiddenDataFor(president,
+        hiddenDataBuilder -> hiddenDataBuilder.question(
+            new ExecutiveInvestigationTargetQuestion(president, state.getAlivePlayers())));
   }
 
   private void advanceStateToWaitingForExecutiveInvestigationResult(
@@ -430,20 +399,16 @@ public class Game {
     User president = state.getCurrentGovernment().get(GovernmentRole.PRESIDENT);
     Party investigationResult =
         state.getHiddenData().get(investigatedUser).getSecretRole().getParty();
-    gameStateBuilder
-        .state(State.WAITING_FOR_EXECUTIVE_INVESTIGATION_RESULT)
-        .investigatedPlayer(investigatedUser)
-        .updateHiddenDataFor(
-            president,
-            hiddenDataBuilder -> {
-              hiddenDataBuilder.question(new ExecutiveInvestigationResultQuestion(investigatedUser,
-                  investigationResult));
-              if (investigationResult == Party.FASCIST) {
-                hiddenDataBuilder.knownFascist(investigatedUser);
-              } else {
-                hiddenDataBuilder.knownLiberal(investigatedUser);
-              }
-            });
+    gameStateBuilder.state(State.WAITING_FOR_EXECUTIVE_INVESTIGATION_RESULT)
+        .investigatedPlayer(investigatedUser).updateHiddenDataFor(president, hiddenDataBuilder -> {
+          hiddenDataBuilder.question(
+              new ExecutiveInvestigationResultQuestion(investigatedUser, investigationResult));
+          if (investigationResult == Party.FASCIST) {
+            hiddenDataBuilder.knownFascist(investigatedUser);
+          } else {
+            hiddenDataBuilder.knownLiberal(investigatedUser);
+          }
+        });
   }
 
 
@@ -455,7 +420,8 @@ public class Game {
     if (gameState.getFascistPolicies() >= 3
         && gameState.getCurrentGovernment().containsKey(GovernmentRole.CHANCELLOR)
         && gameState.getHiddenData()
-            .get(gameState.getCurrentGovernment().get(GovernmentRole.CHANCELLOR)).getSecretRole() == SecretRole.HITLER) {
+            .get(gameState.getCurrentGovernment().get(GovernmentRole.CHANCELLOR))
+            .getSecretRole() == SecretRole.HITLER) {
       return Optional.of(new GameResult(Party.FASCIST, "Hitler has been elected chancellor"));
     }
     return Optional.empty();
@@ -467,8 +433,8 @@ public class Game {
           "The liberals have maintained control of government and forced out fascism."));
     }
     if (gameState.getDeadPlayers().stream()
-        .map(deadPlayer -> gameState.getHiddenData().get(deadPlayer))
-        .map(HiddenData::getSecretRole).anyMatch(role -> role == SecretRole.HITLER)) {
+        .map(deadPlayer -> gameState.getHiddenData().get(deadPlayer)).map(HiddenData::getSecretRole)
+        .anyMatch(role -> role == SecretRole.HITLER)) {
       return Optional.of(new GameResult(Party.LIBERAL, "The liberals have killed Hitler!"));
     }
     return Optional.empty();
@@ -476,9 +442,8 @@ public class Game {
 
   private void consumeVictory(GameResult result) {
     GameStateBuilder builder = state.toBuilder().state(State.GAME_OVER).gameResult(result);
-    state.getPlayers().forEach(
-        player -> builder.updateHiddenDataFor(player,
-            hiddenDataBuilder -> hiddenDataBuilder.question(null)));
+    state.getPlayers().forEach(player -> builder.updateHiddenDataFor(player,
+        hiddenDataBuilder -> hiddenDataBuilder.question(null)));
     state = builder.build();
   }
 

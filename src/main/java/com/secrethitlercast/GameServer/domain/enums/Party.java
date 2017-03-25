@@ -6,8 +6,10 @@ import com.secrethitlercast.GameServer.questions.Answer;
 import com.secrethitlercast.GameServer.questions.PresidentialLegislationQuestion;
 
 public enum Party {
-  FASCIST(PresidentialLegislationQuestion.FASCIST_ANSWER, "Get six fascist policies passed, or get Hitler elected chancelor after three policies have passed."),
-  LIBERAL(PresidentialLegislationQuestion.LIBERAL_ANSWER, "Pass five Liberal Policies, or kill Hitler.");
+  FASCIST(PresidentialLegislationQuestion.FASCIST_ANSWER,
+      "Get six fascist policies passed, or get Hitler elected chancelor after three policies have passed."), LIBERAL(
+          PresidentialLegislationQuestion.LIBERAL_ANSWER,
+          "Pass five Liberal Policies, or kill Hitler.");
 
   private String winCondition;
   private Answer policyAnswer;
@@ -26,8 +28,7 @@ public enum Party {
   }
 
   public static Party fromAnswer(int answerId) {
-    return Arrays.stream(values())
-        .filter(party -> party.getPolicyAnswer().getId() == answerId)
+    return Arrays.stream(values()).filter(party -> party.getPolicyAnswer().getId() == answerId)
         .findFirst()
         .orElseThrow(() -> new IllegalStateException("Answer ID was neither fascist nor liberal"));
   }

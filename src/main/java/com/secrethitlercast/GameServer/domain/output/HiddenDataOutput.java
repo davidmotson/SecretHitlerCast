@@ -17,12 +17,12 @@ public class HiddenDataOutput {
   String hitler;
   ImmutableList<String> liberals;
   ImmutableList<String> fascists;
-  
+
   public static HiddenDataOutput fromHiddenData(HiddenData data) {
-    return new HiddenDataOutput(data.getSecretRole(), Optional.ofNullable(data.getKnownHitler())
-        .map(User::getName).orElse(null), data.getKnownLiberals().stream().map(User::getName)
-        .collect(toImmutableList()), data.getKnownFascists().stream().map(User::getName)
-        .collect(toImmutableList()));
+    return new HiddenDataOutput(data.getSecretRole(),
+        Optional.ofNullable(data.getKnownHitler()).map(User::getName).orElse(null),
+        data.getKnownLiberals().stream().map(User::getName).collect(toImmutableList()),
+        data.getKnownFascists().stream().map(User::getName).collect(toImmutableList()));
   }
 
 }

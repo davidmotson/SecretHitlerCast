@@ -12,11 +12,10 @@ public class ExecutionQuestion implements Question {
   private final ImmutableList<Answer> answers;
 
   public ExecutionQuestion(User user, ImmutableList<User> allPlayers) {
-    this.answers =
-        IntStream.range(0, allPlayers.size())
-            .mapToObj(i -> new Answer(i, allPlayers.get(i).getName()))
-            .filter(answer -> !answer.getAnswer().equals(user.getName()))
-            .collect(ImmutableList.toImmutableList());
+    this.answers = IntStream.range(0, allPlayers.size())
+        .mapToObj(i -> new Answer(i, allPlayers.get(i).getName()))
+        .filter(answer -> !answer.getAnswer().equals(user.getName()))
+        .collect(ImmutableList.toImmutableList());
   }
 
   @Override

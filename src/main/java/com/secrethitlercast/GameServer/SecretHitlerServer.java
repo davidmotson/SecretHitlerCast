@@ -83,7 +83,8 @@ public class SecretHitlerServer implements WebServer {
   }
 
   private String answerQuestion(Request request, Response response) {
-    AnswerQuestionRequest answerRequest = gson.fromJson(request.body(), AnswerQuestionRequest.class);
+    AnswerQuestionRequest answerRequest =
+        gson.fromJson(request.body(), AnswerQuestionRequest.class);
     String cookie = checkNotNull(request.cookie(COOKIE_NAME), "cookie");
     User user = userManager.getUser(cookie);
     Game game = gameManager.getGameByUser(user);
@@ -100,8 +101,8 @@ public class SecretHitlerServer implements WebServer {
   private String getResponseForCode(String code) {
     return "{\"code\":\"" + code + "\"}";
   }
-  
-  private String generateErrorReponse(Exception e){
+
+  private String generateErrorReponse(Exception e) {
     return "{\"status\":\"error\",\"error\":\"" + HtmlEscapers.htmlEscaper().escape(e.getMessage())
         + "\"}";
   }
