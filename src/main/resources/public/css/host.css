@@ -114,6 +114,9 @@ body {
     vertical-align: middle;
     width: 100%;
 }
+.message.game-over {
+    font-size: 2em;
+}
 .fascist-tract,
 .liberal-tract {
     margin: auto;

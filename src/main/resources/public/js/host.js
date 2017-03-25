@@ -82893,30 +82893,34 @@ var templater = require("handlebars/runtime")["default"].template;module.exports
 },"20":function(container,depth0,helpers,partials,data) {
     return "                        <div class=\"player-entry in-game empty\"></div>\n";
 },"22":function(container,depth0,helpers,partials,data) {
-    return "                <img class=\"fascist-tract-img\" src=\"/img/5_6_fascist_tract.png\">\n";
+    return "game-over";
 },"24":function(container,depth0,helpers,partials,data) {
-    return "                <img class=\"fascist-tract-img\" src=\"/img/7_8_fascist_tract.png\">\n";
+    return "                <img class=\"fascist-tract-img\" src=\"/img/5_6_fascist_tract.png\">\n";
 },"26":function(container,depth0,helpers,partials,data) {
-    return "                <img class=\"fascist-tract-img\" src=\"/img/9_10_fascist_tract.png\">\n";
+    return "                <img class=\"fascist-tract-img\" src=\"/img/7_8_fascist_tract.png\">\n";
 },"28":function(container,depth0,helpers,partials,data) {
-    return "                    <img class=\"policy-card fascist\" src=\"/img/fascist_policy.png\">\n";
+    return "                <img class=\"fascist-tract-img\" src=\"/img/9_10_fascist_tract.png\">\n";
 },"30":function(container,depth0,helpers,partials,data) {
+    return "                    <img class=\"policy-card fascist\" src=\"/img/fascist_policy.png\">\n";
+},"32":function(container,depth0,helpers,partials,data) {
     return "                    <img class=\"policy-card liberal\" src=\"/img/liberal_policy.png\">\n";
 },"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
     var stack1, helper, alias1=depth0 != null ? depth0 : {}, alias2=helpers.helperMissing, alias3="function", alias4=container.escapeExpression;
 
   return "<div class=\"flex-space\">\n"
     + ((stack1 = helpers.each.call(alias1,(depth0 != null ? depth0.playerColumns : depth0),{"name":"each","hash":{},"fn":container.program(1, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "")
-    + "    <div class=\"activity-space\">\n        <div class=\"message-container\">\n            <div class=\"message\">"
+    + "    <div class=\"activity-space\">\n        <div class=\"message-container\">\n            <div class=\"message "
+    + ((stack1 = helpers["if"].call(alias1,(depth0 != null ? depth0.gameOver : depth0),{"name":"if","hash":{},"fn":container.program(22, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "")
+    + "\">"
     + alias4(((helper = (helper = helpers.message || (depth0 != null ? depth0.message : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"message","hash":{},"data":data}) : helper)))
     + "</div>\n        </div>\n        <div class=\"fascist-tract\">\n"
-    + ((stack1 = helpers["if"].call(alias1,(depth0 != null ? depth0.smallGame : depth0),{"name":"if","hash":{},"fn":container.program(22, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "")
-    + ((stack1 = helpers["if"].call(alias1,(depth0 != null ? depth0.mediumGame : depth0),{"name":"if","hash":{},"fn":container.program(24, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "")
-    + ((stack1 = helpers["if"].call(alias1,(depth0 != null ? depth0.largeGame : depth0),{"name":"if","hash":{},"fn":container.program(26, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "")
+    + ((stack1 = helpers["if"].call(alias1,(depth0 != null ? depth0.smallGame : depth0),{"name":"if","hash":{},"fn":container.program(24, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "")
+    + ((stack1 = helpers["if"].call(alias1,(depth0 != null ? depth0.mediumGame : depth0),{"name":"if","hash":{},"fn":container.program(26, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "")
+    + ((stack1 = helpers["if"].call(alias1,(depth0 != null ? depth0.largeGame : depth0),{"name":"if","hash":{},"fn":container.program(28, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "")
     + "\n            <div>\n"
-    + ((stack1 = helpers.each.call(alias1,(depth0 != null ? depth0.fascistPolicies : depth0),{"name":"each","hash":{},"fn":container.program(28, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "")
+    + ((stack1 = helpers.each.call(alias1,(depth0 != null ? depth0.fascistPolicies : depth0),{"name":"each","hash":{},"fn":container.program(30, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "")
     + "            </div>\n        </div>\n        <div class=\"liberal-tract\">\n            <img class=\"liberal-tract-img\" src=\"/img/liberal_tract.png\">\n            <div>\n"
-    + ((stack1 = helpers.each.call(alias1,(depth0 != null ? depth0.liberalPolicies : depth0),{"name":"each","hash":{},"fn":container.program(30, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "")
+    + ((stack1 = helpers.each.call(alias1,(depth0 != null ? depth0.liberalPolicies : depth0),{"name":"each","hash":{},"fn":container.program(32, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "")
     + "                <div class=\"election-tracker count-"
     + alias4(((helper = (helper = helpers.failedElections || (depth0 != null ? depth0.failedElections : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"failedElections","hash":{},"data":data}) : helper)))
     + "\"></div>\n            </div>\n        </div>\n    </div>\n</div>\n";
@@ -83108,15 +83112,14 @@ class InGameView {
                 return _this2.loop();
             }
 
+            _this2.render();
+
             if (_this2.status.isGameOver()) {
-                alert('GAME OVER. TODO: follow spec.');
                 window.setTimeout(function () {
                     window.close();
                 }, 30000);
                 return;
             }
-
-            _this2.render();
 
             _this2.loop();
         })();
@@ -83151,7 +83154,8 @@ class InGameView {
             failedElections: this.status.getFailedElections(),
             smallGame: this.status.getPlayers().length <= 6,
             mediumGame: this.status.getPlayers().length === 7 || this.status.getPlayers().length === 8,
-            largeGame: this.status.getPlayers().length === 9 || this.status.getPlayers().length === 10
+            largeGame: this.status.getPlayers().length === 9 || this.status.getPlayers().length === 10,
+            gameOver: this.status.isGameOver()
         });
 
         (0, _jquery2.default)('body').attr('id', 'in-game');
