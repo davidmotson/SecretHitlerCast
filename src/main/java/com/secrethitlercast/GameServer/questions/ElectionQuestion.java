@@ -24,7 +24,7 @@ public class ElectionQuestion implements Question {
   @Override
   public String getQuestion() {
     return String.format("Vote on a new government! President: %s Chancellor: %s.",
-        presidentialCandidate, chancellorCandidate);
+        presidentialCandidate.getName(), chancellorCandidate.getName());
   }
 
   @Override
