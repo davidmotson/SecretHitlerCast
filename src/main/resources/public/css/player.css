@@ -181,6 +181,6 @@ body#join-game {
     background: #004e6d;
     bottom: 0;
     left: 0;
-    position: absolute;
+    position: fixed;
     z-index: 10000;
 }
