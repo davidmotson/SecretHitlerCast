@@ -1,0 +1,189 @@
+body {
+    background: url(/img/subtle_grunge.png) repeat;
+    color: #333;
+}
+
+/* pre game */
+.flex-space {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    height: 100vh;
+    padding: 1vmin;
+}
+.join-location {
+    font-size: 4vw;
+    line-height: 1;
+    margin-bottom: 1.5em;
+    margin-top: 1em;
+}
+.room-code-text {
+    font-size: 2vw;
+    line-height: 1;
+    margin-bottom: 1em;
+}
+.room-code {
+    font-size: 14vw;
+    line-height: 1;
+}
+.player-column {
+    display: flex;
+    flex-direction: column;
+    width: 24%;
+    margin-right: 1%;
+}
+.player-entry {
+    background: rgba(220, 220, 220, 0.6);
+    border: 1px solid #c7c7c7;
+    flex-grow: 1;
+    flex-basis: 80px;
+    margin-bottom: 1vh;
+    padding: 0.5em;
+    position: relative;
+    width: 100%;
+}
+.player-entry.pre-game {
+    font-size: 8vmin;
+    line-height: 1;
+    text-align: center;
+}
+.player-entry.in-game {
+    font-size: 4vmin;
+    line-height: 1;
+}
+.player-entry.ready {
+    border: 1px solid #27ae60;
+    background: rgba(46,204,113, 0.6);
+}
+.player-entry.empty {
+    border: 1px dashed #c7c7c7;
+}
+.player-entry.in-game.empty {
+    background: none;
+    border: 0;
+}
+.activity-space {
+    flex-grow: 1;
+    padding: 5vmin;
+    width: 50%;
+}
+
+/* in-game */
+.player-name.dead {
+    color: #c0392b;
+    text-decoration: line-through;
+}
+.position-plaque {
+    bottom: 0.5em;
+    position: absolute;
+    width: 40%;
+}
+.position-plaque img {
+    max-width: 100%;
+    max-height: 100%;
+}
+.ballot-card {
+    max-height: calc(100% - 1em);
+    position: absolute;
+    right: 0.5em;
+    top: 0.5em;
+    width: 45% !important;
+}
+.candidate-text {
+    color: #fff;
+    bottom: 1%;
+    font-size: 2vmin;
+    position: absolute;
+    right: 4%;
+    text-shadow: 1px 1px 0px  #000, -1px -1px 0px  #000, 1px -1px 0px  #000, -1px 1px 0px  #000;
+}
+
+.message-container {
+    display: table;
+    background: rgba(220, 220, 220, 0.6);
+    height: 20vh;
+    width: 100%;
+}
+.message {
+    display: table-cell;
+    font-size: 1.5em;
+    height: 100%;
+    margin: 0 12px;
+    padding: 10px;
+    text-align: center;
+    vertical-align: middle;
+    width: 100%;
+}
+.fascist-tract,
+.liberal-tract {
+    margin: auto;
+    max-width: 100vh;
+    position: relative;
+}
+.fascist-tract-img,
+.liberal-tract-img {
+    width: 100%;
+}
+.policy-card {
+    position: absolute;
+    top: 24%;
+    width: 12%;
+}
+.policy-card.fascist:nth-child(1) {
+    left: 9%;
+}
+.policy-card.fascist:nth-child(2) {
+    left: 23%;
+}
+.policy-card.fascist:nth-child(3) {
+    left: 37%;
+}
+.policy-card.fascist:nth-child(4) {
+    left: 50.8%;
+}
+.policy-card.fascist:nth-child(5) {
+    left: 64.8%;
+}
+.policy-card.fascist:nth-child(6) {
+    left: 79%;
+}
+
+.policy-card.liberal:nth-child(1) {
+    left: 15.9%;
+}
+.policy-card.liberal:nth-child(2) {
+    left: 29.8%;
+}
+.policy-card.liberal:nth-child(3) {
+    left: 43.7%;
+}
+.policy-card.liberal:nth-child(4) {
+    left: 57.6%;
+}
+.policy-card.liberal:nth-child(5) {
+    left: 71.9%;
+}
+
+
+.election-tracker {
+    background: #004e6d;
+    border: 2px solid white;
+    border-radius: 100%;
+    box-shadow: 2px 2px 0px 1px #004e6d;
+    height: 10%;
+    position: absolute;
+    top: 79%;
+    width: 3.5%;
+}
+.election-tracker.count-0 {
+    left: 33%;
+}
+.election-tracker.count-1 {
+    left: 42%;
+}
+.election-tracker.count-2 {
+    left: 51.5%;
+}
+.election-tracker.count-3 {
+    left: 61%;
+}

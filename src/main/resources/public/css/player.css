@@ -1,0 +1,186 @@
+body {
+    font-size: 18px;
+}
+
+/* main menu */
+body#main-menu {
+    background: #c13423;
+}
+.title-image {
+    display: block;
+    margin: 1em auto 2em;
+    max-width: 500px;
+    width: 90%;
+}
+.main-menu-button {
+    background: #333;
+    border: 0;
+    color: #f7e1c3;
+    display: block;
+    font-size: inherit;
+    margin-bottom: 1em;
+    width: 100%;
+}
+
+/* join game */
+body#join-game {
+    background: #333;
+}
+.join-game-container {
+    padding-top: 3em;
+}
+.join-input {
+    background: #f7f7f7;
+    border: 1px solid #c13423;
+    border-radius: 0;
+    display: block;
+    font-size: 20px;
+    margin-bottom: 1em;
+    padding: 0.5em;
+    width: 100%;
+}
+.join-button {
+    background: #c13423;
+    border: 0;
+    color: #f7e1c3;
+    display: block;
+    font-size: 20px;
+    margin-top: 2em;
+    width: 100%;
+}
+
+/* dossier */
+.dossier {
+    background: #fff;
+    height: 100%;
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    z-index: 20000;
+}
+.dossier .header {
+    text-align: left;
+}
+.dossier-header:after {
+    clear: both;
+    content: "";
+    display: block;
+}
+.dossier-title {
+    display: inline-block;
+    margin: 0;
+}
+.close-dossier {
+    float: right;
+}
+.secret-role-toggle {
+    background: #004e6d;
+    font-size: inherit;
+    width: 100%;
+}
+.secret-role-container {
+    height: 0;
+    margin-bottom: 1em;
+    overflow: hidden;
+    text-align: center;
+    transition: 0.5s height ease-in-out;
+}
+.secret-role {
+    padding: 0.5em;
+}
+.secret-role-container img {
+    max-width: 49%;
+    max-height: 280px;
+}
+.secret-role-toggle-checkbox:checked + .secret-role-container {
+    height: 280px;
+}
+.hitler-header,
+.fascist-header,
+.fascist-item,
+.liberal-header,
+.liberal-item {
+    color: #fff;
+    padding: 0.5em;
+    text-align: center;
+}
+.hitler-header,
+.fascist-header,
+.liberal-header {
+    margin-top: 1em;
+}
+.hitler-header {
+    background: #9a0201;
+}
+.fascist-header {
+    background: #c13423;
+}
+.fascist-item {
+    background: #e66444;
+}
+.fascist-item:nth-child(even) {
+    background: #ed7354;
+}
+
+.liberal-header {
+    background: #004e6d;
+}
+.liberal-item {
+    background: #61c8d9;
+}
+.liberal-item:nth-child(even) {
+    background: #4abfd3;
+}
+
+/* question */
+.question {
+    border: 1px solid #d7d7d7;
+    font-size: 24px;
+    margin: auto;
+    padding: 1em;
+    width: 90%;
+}
+.question-text {
+    margin-bottom: 1em;
+}
+.answer-select {
+    display: block;
+    background: #fff;
+    border: 1px solid #61c8d9;
+    border-radius: 0;
+    padding: 0.5em;
+    margin-bottom: 0.8em;
+    text-align: right;
+    width: 100%;
+}
+.answer-fancy-divider {
+    color: #e7e7e7;
+    font-size: 50px;
+    line-height: 1;
+    margin-bottom: 0.5em;
+    text-align: center;
+}
+.answer-submit {
+    background: #004e6d;
+    border: 0;
+    display: block;
+    font-size: inherit;
+    width: 100%;
+}
+
+/* question loop */
+.header {
+    border-bottom: 2px solid #d7d7d7;
+    font-size: 28px;
+    margin-bottom: 15px;
+    padding: 15px;
+    text-align: center;
+}
+.open-dossier {
+    background: #004e6d;
+    bottom: 0;
+    left: 0;
+    position: absolute;
+    z-index: 10000;
+}
