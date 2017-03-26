@@ -335,7 +335,7 @@ public class Game {
     }
     ImmutableList<Party> policiesForPresident = policyDeck.subList(0, 3);
     ImmutableList<Party> newPolicyDeck = policyDeck.subList(3, policyDeck.size());
-    gameStateBuilder.policyDeck(newPolicyDeck).state(State.WAITING_FOR_PRESIDENTIAL_LEGISLATION)
+    gameStateBuilder.electionCounter(0).policyDeck(newPolicyDeck).state(State.WAITING_FOR_PRESIDENTIAL_LEGISLATION)
         .updateHiddenDataFor(president, hiddenDataBuilder -> hiddenDataBuilder
             .question(new PresidentialLegislationQuestion(policiesForPresident)));
   }

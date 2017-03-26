@@ -49,7 +49,7 @@ public class GameState {
   GameResult gameResult;
 
   public User getPresidentialCandidate() {
-    return players.get((round - numOfSpecialElections + randomPlayerOffset) % players.size());
+    return getAlivePlayers().get((round - numOfSpecialElections + randomPlayerOffset) % (players.size() - deadPlayers.size()));
   }
 
   public boolean isVetoPowerEnabled() {
