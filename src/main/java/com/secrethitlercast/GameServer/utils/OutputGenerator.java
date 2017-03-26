@@ -22,9 +22,9 @@ import com.secrethitlercast.GameServer.domain.output.ScreenOutput.ScreenOutputBu
 
 public class OutputGenerator {
   private static final Gson gson = new Gson();
-  private static final ImmutableSet<State> STATES_WITH_VOTES =
-      ImmutableSet.of(State.WAITING_FOR_PRESIDENTIAL_LEGISLATION,
-          State.WAITING_FOR_CHANCELLOR_LEGISLATION, State.WAITING_FOR_PRESIDENTIAL_VETO);
+  private static final ImmutableSet<State> STATES_WITH_VOTES = ImmutableSet.of(
+      State.WAITING_FOR_PRESIDENTIAL_LEGISLATION, State.WAITING_FOR_CHANCELLOR_LEGISLATION,
+      State.WAITING_FOR_PRESIDENTIAL_VETO, State.WAITING_FOR_ELECTION_FAILURE);
 
   private static final ImmutableSet<State> STATES_WITH_PLAYERS_VOTED = ImmutableSet.<State>builder()
       .addAll(STATES_WITH_VOTES).add(State.WAITING_FOR_ELECTION).build();
@@ -140,6 +140,8 @@ public class OutputGenerator {
       case WAITING_FOR_PLAYERS:
         return "Waiting for players";
 
+      case WAITING_FOR_ELECTION_FAILURE:
+        return "The election failed";
     }
     throw new IllegalStateException("unknown state");
   }
