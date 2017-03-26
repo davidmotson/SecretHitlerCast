@@ -47,13 +47,14 @@ public class Game {
   private static final ImmutableList<Party> STARTING_POLICY_DECK = ImmutableMultiset
       .<Party>builder().addCopies(Party.LIBERAL, 6).addCopies(Party.FASCIST, 11).build().asList();
 
-  private final String key;
+  private final String code;
   private volatile GameState state;
   private volatile ImmutableMap<String, String> outputByUsername;
 
-  public Game(String key) {
-    this.key = key;
-    state = GameState.builder().state(State.WAITING_FOR_PLAYERS).build();
+  public Game(String code) {
+    this.code = code;
+    state = GameState.builder().state(State.WAITING_FOR_PLAYERS)
+        .randomPlayerOffset(ThreadLocalRandom.current().nextInt(state.getPlayers().size())).build();
     updateOutputByUsername();
   }
 
@@ -62,7 +63,7 @@ public class Game {
   }
 
   public String getCode() {
-    return key;
+    return code;
   }
 
   public String getOutputFor(User user) {
@@ -190,6 +191,10 @@ public class Game {
     updateOutputByUsername();
   }
 
+  public boolean isOver() {
+    return state.getState() == State.GAME_OVER;
+  }
+
   private void playerReady(User user, GameStateBuilder gameStateBuilder) throws GameRuleException {
     gameStateBuilder.readyPlayer(user);
     if (state.getPlayers().size() >= 5
@@ -217,9 +222,7 @@ public class Game {
             .knownFascists(fascists).knownLiberals(liberals)));
     liberals.forEach(liberal -> gameStateBuilder.updateHiddenDataFor(liberal,
         hiddenDataBuilder -> hiddenDataBuilder.secretRole(SecretRole.LIBERAL)));
-    gameStateBuilder
-        .randomPlayerOffset(ThreadLocalRandom.current().nextInt(state.getPlayers().size()))
-        .policyDeck(STARTING_POLICY_DECK.stream().collect(toShuffledList()));
+    gameStateBuilder.policyDeck(STARTING_POLICY_DECK.stream().collect(toShuffledList()));
     advanceStateToWaitingForCandidates(gameStateBuilder, Optional.empty());
   }
 
@@ -335,7 +338,8 @@ public class Game {
     }
     ImmutableList<Party> policiesForPresident = policyDeck.subList(0, 3);
     ImmutableList<Party> newPolicyDeck = policyDeck.subList(3, policyDeck.size());
-    gameStateBuilder.electionCounter(0).policyDeck(newPolicyDeck).state(State.WAITING_FOR_PRESIDENTIAL_LEGISLATION)
+    gameStateBuilder.electionCounter(0).policyDeck(newPolicyDeck)
+        .state(State.WAITING_FOR_PRESIDENTIAL_LEGISLATION)
         .updateHiddenDataFor(president, hiddenDataBuilder -> hiddenDataBuilder
             .question(new PresidentialLegislationQuestion(policiesForPresident)));
   }
@@ -418,6 +422,7 @@ public class Game {
           "The Fascists have passed 6 fascist policies, destroying Democracy."));
     }
     if (gameState.getFascistPolicies() >= 3
+        && gameState.getState() == State.WAITING_FOR_PRESIDENTIAL_LEGISLATION
         && gameState.getCurrentGovernment().containsKey(GovernmentRole.CHANCELLOR)
         && gameState.getHiddenData()
             .get(gameState.getCurrentGovernment().get(GovernmentRole.CHANCELLOR))
@@ -449,7 +454,7 @@ public class Game {
 
   private void updateOutputByUsername() {
     ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
-    builder.put("HOSTSCREEN" + key, OutputGenerator.generateOutputForScreen(state, key));
+    builder.put("HOSTSCREEN" + code, OutputGenerator.generateOutputForScreen(state, code));
     state.getPlayers().forEach(
         user -> builder.put(user.getName(), OutputGenerator.generateOutputForUser(state, user)));
     outputByUsername = builder.build();

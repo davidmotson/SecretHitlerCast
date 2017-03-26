@@ -95,7 +95,11 @@ public class SecretHitlerServer implements WebServer {
   private String getStatus(Request request, Response response) {
     String cookie = checkNotNull(request.cookie(COOKIE_NAME), "cookie");
     User user = userManager.getUser(cookie);
-    return gameManager.getGameByUser(user).getOutputFor(user);
+    Game game = gameManager.getGameByUser(user);
+    if (game.isOver()) {
+      response.cookie(COOKIE_NAME, cookie, 0);
+    }
+    return game.getOutputFor(user);
   }
 
   private String getResponseForCode(String code) {
