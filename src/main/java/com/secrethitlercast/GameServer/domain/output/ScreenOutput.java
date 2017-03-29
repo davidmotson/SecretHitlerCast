@@ -26,5 +26,7 @@ public class ScreenOutput {
   String currentChancellor;
   String currentPresidentialCandidate;
   String currentChancellorCandidate;
-
+  String lastPresident;
+  String lastChancellor;
+  Integer policyDeckSize;
 }

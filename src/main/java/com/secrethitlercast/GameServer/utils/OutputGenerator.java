@@ -42,7 +42,6 @@ public class OutputGenerator {
       ImmutableSet.<State>builder().addAll(STATES_WITH_CHANCELLOR_CANDIDATE)
           .add(State.WAITING_FOR_CANDIDATES).build();
 
-
   private OutputGenerator() {}
 
   public static String generateOutputForScreen(GameState state, String code) {
@@ -58,7 +57,7 @@ public class OutputGenerator {
         .players(state.getPlayers().stream().map(User::getName).collect(toImmutableList()))
         .deadPlayers(state.getDeadPlayers().stream().map(User::getName).collect(toImmutableList()))
         .fascistPolicies(state.getFascistPolicies()).liberalPolicies(state.getLiberalPolicies())
-        .electionCounter(state.getElectionCounter());
+        .electionCounter(state.getElectionCounter()).policyDeckSize(state.getPolicyDeck().size());
 
     if (STATES_WITH_PLAYERS_VOTED.contains(state.getState())) {
       builder.playersVoted(
@@ -84,6 +83,11 @@ public class OutputGenerator {
     if (STATES_WITH_CHANCELLOR_CANDIDATE.contains(state.getState())) {
       builder.currentChancellorCandidate(
           state.getCurrentCandidates().get(GovernmentRole.CHANCELLOR).getName());
+    }
+
+    if (state.getPreviousGovernment() != null) {
+      builder.lastPresident(state.getPreviousGovernment().get(GovernmentRole.PRESIDENT).getName())
+          .lastChancellor(state.getPreviousGovernment().get(GovernmentRole.CHANCELLOR).getName());
     }
 
     return gson.toJson(builder.build());

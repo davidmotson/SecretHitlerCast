@@ -45,8 +45,8 @@ public enum GameBoard {
       case 10:
         return LARGE;
       default:
-        throw new GameRuleException(String.format("Tried to fetch boardgame for %s players",
-            numOfPlayers));
+        throw new GameRuleException(
+            String.format("Tried to fetch boardgame for %s players", numOfPlayers));
     }
   }
 }

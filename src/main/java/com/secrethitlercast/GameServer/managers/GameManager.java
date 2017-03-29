@@ -25,26 +25,25 @@ public class GameManager {
   public GameManager(CodeGenerator codeGenerator) {
     this.codeGenerator = codeGenerator;
     gamesByUser = new ConcurrentHashMap<User, Game>();
-    gamesByCode =
-        CacheBuilder.newBuilder().expireAfterAccess(5, TimeUnit.MINUTES)
-            .<String, Game>removalListener(this::cleanGamesByUser)
-            .build();
+    gamesByCode = CacheBuilder.newBuilder().expireAfterAccess(5, TimeUnit.MINUTES)
+        .<String, Game>removalListener(this::cleanGamesByUser).build();
   }
-  
+
   @Synchronized
   public Game createGame() {
-    GameRuleException.check(gamesByCode.size() < 100, "Too many games currently running, try again later");
-    while(true) {
+    GameRuleException.check(gamesByCode.size() < 100,
+        "Too many games currently running, try again later");
+    while (true) {
       String code = codeGenerator.getCode();
       Game game = gamesByCode.getIfPresent(code);
-      if(game == null) {
+      if (game == null) {
         game = new Game(code);
         gamesByCode.put(code, game);
         return game;
       }
     }
   }
-  
+
   public Game getGameByUser(User user) {
     Game game = GameRuleException.checkNotNull(gamesByUser.get(user), "game");
     gamesByCode.getIfPresent(game.getCode());
@@ -57,7 +56,7 @@ public class GameManager {
     gamesByUser.put(user, game);
     return game;
   }
-  
+
   public void joinGameAsHost(Game game, User hostUser) {
     gamesByUser.put(hostUser, game);
   }

@@ -7,9 +7,7 @@ import static java.util.stream.Collectors.toList;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ThreadLocalRandom;
-
-import lombok.Synchronized;
+import java.util.stream.Stream;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -44,6 +42,8 @@ import com.secrethitlercast.GameServer.questions.Question;
 import com.secrethitlercast.GameServer.questions.SpecialElectionQuestion;
 import com.secrethitlercast.GameServer.utils.OutputGenerator;
 
+import lombok.Synchronized;
+
 public class Game {
   private static final ImmutableList<Party> STARTING_POLICY_DECK = ImmutableMultiset
       .<Party>builder().addCopies(Party.LIBERAL, 6).addCopies(Party.FASCIST, 11).build().asList();
@@ -54,8 +54,7 @@ public class Game {
 
   public Game(String code) {
     this.code = code;
-    state = GameState.builder().state(State.WAITING_FOR_PLAYERS)
-        .randomPlayerOffset(ThreadLocalRandom.current().nextInt(100)).build();
+    state = GameState.builder().state(State.WAITING_FOR_PLAYERS).build();
     updateOutputByUsername();
   }
 
@@ -185,7 +184,7 @@ public class Game {
       case ExecutiveInvestigationResultQuestion.ID:
         advanceStateToWaitingForCandidates(gameStateBuilder, Optional.empty());
         break;
-        
+
       case ElectionFailureQuestion.ID:
         if (state.getElectionCounter() == 3) {
           consumeElectionTracker(gameStateBuilder, state);
@@ -244,22 +243,15 @@ public class Game {
           .filter(entry -> entry.getValue().equals(Vote.NO)).collect(counting());
 
       if (yesVotes > noVotes) {
-        gameStateBuilder.clearCurrentGovernment()
-            .currentGovernment(protoState.getCurrentCandidates()).clearCurrentCandidates();
+        gameStateBuilder.currentGovernment(protoState.getCurrentCandidates())
+            .clearCurrentCandidates();
         advanceStateToWaitingForPresidentialLegislation(gameStateBuilder,
             protoState.getCurrentCandidates().get(GovernmentRole.PRESIDENT));
       } else {
-        advanceStateToWaitingForElectionFailure(gameStateBuilder, protoState.getCurrentCandidates().get(GovernmentRole.PRESIDENT));
+        advanceStateToWaitingForElectionFailure(gameStateBuilder,
+            protoState.getCurrentCandidates().get(GovernmentRole.PRESIDENT));
       }
     }
-  }
-
-  private void advanceStateToWaitingForElectionFailure(GameStateBuilder gameStateBuilder, User presidentialCandidate) {
-    gameStateBuilder.incrementElectionTracker()
-        .updateHiddenDataFor(presidentialCandidate,
-            hiddenDataBuilder -> hiddenDataBuilder
-                .question(new ElectionFailureQuestion(state.getElectionCounter() == 2)))
-        .state(State.WAITING_FOR_ELECTION_FAILURE);
   }
 
   private void passPolicy(GameStateBuilder gameStateBuilder, Party passedPolicy,
@@ -302,13 +294,9 @@ public class Game {
     }
     advanceStateToWaitingForCandidates(gameStateBuilder, Optional.empty());
   }
-  
+
   private void consumeElectionTracker(GameStateBuilder gameStateBuilder, GameState protoState) {
     ImmutableList<Party> policyDeck = protoState.getPolicyDeck();
-    if (policyDeck.isEmpty()) {
-      policyDeck = protoState.getDiscardPile().stream().collect(toShuffledList());
-      gameStateBuilder.clearDiscardPile();
-    }
     Party autoPolicy = policyDeck.get(0);
     if (autoPolicy == Party.FASCIST) {
       gameStateBuilder.incrementFascistPolicies();
@@ -320,19 +308,25 @@ public class Game {
 
   private void advanceStateToWaitingForCandidates(GameStateBuilder gameStateBuilder,
       Optional<User> specialCandidate) {
-    if (specialCandidate.isPresent()) {
-      gameStateBuilder.incrementNumOfSpecialElections();
-    }
     User presidentialCandidate = specialCandidate.orElse(state.getPresidentialCandidate());
-    gameStateBuilder.clearCurrentCandidates()
-        .currentCandidate(GovernmentRole.PRESIDENT, presidentialCandidate).incrementRound()
-        .clearVotes().state(State.WAITING_FOR_CANDIDATES).updateHiddenDataFor(presidentialCandidate,
+    if (!specialCandidate.isPresent()) {
+      gameStateBuilder.lastOrganicPresidentialCandidate(presidentialCandidate);
+    }
+    gameStateBuilder.clearCurrentCandidates().previousGovernment(state.getCurrentGovernment())
+        .currentCandidate(GovernmentRole.PRESIDENT, presidentialCandidate).clearVotes()
+        .state(State.WAITING_FOR_CANDIDATES).updateHiddenDataFor(presidentialCandidate,
             hiddenDataBuilder -> hiddenDataBuilder.question(new ChancellorQuestion(
                 presidentialCandidate, state.getAlivePlayers(), state.getTermLimitedPlayers())));
   }
 
   private void advanceStateToWaitingForElection(GameStateBuilder gameStateBuilder,
       User chancellorCandidate, User presidentialCandidate) {
+    ImmutableList<Party> policyDeck = state.getPolicyDeck();
+    if (policyDeck.size() < 3) {
+      policyDeck = Stream.concat(policyDeck.stream(), state.getDiscardPile().stream())
+          .collect(toShuffledList());
+      gameStateBuilder.clearDiscardPile().policyDeck(policyDeck);
+    }
     gameStateBuilder.currentCandidate(GovernmentRole.CHANCELLOR, chancellorCandidate)
         .state(State.WAITING_FOR_ELECTION);
     state.getAlivePlayers()
@@ -341,14 +335,18 @@ public class Game {
                 .question(new ElectionQuestion(presidentialCandidate, chancellorCandidate))));
   }
 
+  private void advanceStateToWaitingForElectionFailure(GameStateBuilder gameStateBuilder,
+      User presidentialCandidate) {
+    gameStateBuilder.incrementElectionTracker()
+        .updateHiddenDataFor(presidentialCandidate,
+            hiddenDataBuilder -> hiddenDataBuilder
+                .question(new ElectionFailureQuestion(state.getElectionCounter() == 2)))
+        .state(State.WAITING_FOR_ELECTION_FAILURE);
+  }
+
   private void advanceStateToWaitingForPresidentialLegislation(GameStateBuilder gameStateBuilder,
       User president) {
     ImmutableList<Party> policyDeck = state.getPolicyDeck();
-    if (policyDeck.size() < 3) {
-      policyDeck = ImmutableList.<Party>builder().addAll(policyDeck)
-          .addAll(state.getDiscardPile().stream().collect(toShuffledList())).build();
-      gameStateBuilder.clearDiscardPile();
-    }
     ImmutableList<Party> policiesForPresident = policyDeck.subList(0, 3);
     ImmutableList<Party> newPolicyDeck = policyDeck.subList(3, policyDeck.size());
     gameStateBuilder.electionCounter(0).policyDeck(newPolicyDeck)
@@ -391,16 +389,9 @@ public class Game {
 
   private void advanceStateToWaitingForPolicyPeek(GameStateBuilder gameStateBuilder) {
     User president = state.getCurrentGovernment().get(GovernmentRole.PRESIDENT);
-    ImmutableList<Party> policyDeck = state.getPolicyDeck();
-    if (policyDeck.size() < 3) {
-      policyDeck = ImmutableList.<Party>builder().addAll(policyDeck)
-          .addAll(state.getDiscardPile().stream().collect(toShuffledList())).build();
-      gameStateBuilder.clearDiscardPile();
-    }
-    ImmutableList<Party> peekedPolicies = policyDeck.subList(0, 3);
-    gameStateBuilder.state(State.WAITING_FOR_POLICY_PEEK).policyDeck(policyDeck)
-        .updateHiddenDataFor(president, hiddenDataBuilder -> hiddenDataBuilder
-            .question(new PolicyPeekQuestion(peekedPolicies)));
+    ImmutableList<Party> peekedPolicies = state.getPolicyDeck().subList(0, 3);
+    gameStateBuilder.state(State.WAITING_FOR_POLICY_PEEK).updateHiddenDataFor(president,
+        hiddenDataBuilder -> hiddenDataBuilder.question(new PolicyPeekQuestion(peekedPolicies)));
   }
 
 

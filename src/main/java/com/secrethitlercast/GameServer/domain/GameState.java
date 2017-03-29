@@ -2,11 +2,8 @@ package com.secrethitlercast.GameServer.domain;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
 
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Consumer;
-
-import lombok.Builder;
-import lombok.Singular;
-import lombok.Value;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -18,6 +15,10 @@ import com.secrethitlercast.GameServer.domain.enums.Party;
 import com.secrethitlercast.GameServer.domain.enums.State;
 import com.secrethitlercast.GameServer.domain.enums.Vote;
 
+import lombok.Builder;
+import lombok.Singular;
+import lombok.Value;
+
 @Value
 @Builder
 public class GameState {
@@ -27,8 +28,8 @@ public class GameState {
   ImmutableSet<User> readyPlayers;
   @Singular
   ImmutableList<User> investigatedPlayers;
-  @Singular("currentGovernment")
   ImmutableMap<GovernmentRole, User> currentGovernment;
+  ImmutableMap<GovernmentRole, User> previousGovernment;
   @Singular
   ImmutableMap<GovernmentRole, User> currentCandidates;
   @Singular
@@ -39,17 +40,25 @@ public class GameState {
   ImmutableList<Party> discardPile;
   @Singular
   ImmutableMap<User, Vote> votes;
+  User lastOrganicPresidentialCandidate;
   State state;
-  int randomPlayerOffset;
-  int round;
-  int numOfSpecialElections;
   int fascistPolicies;
   int liberalPolicies;
   int electionCounter;
   GameResult gameResult;
 
   public User getPresidentialCandidate() {
-    return getAlivePlayers().get((round - numOfSpecialElections + randomPlayerOffset) % (players.size() - deadPlayers.size()));
+    if (lastOrganicPresidentialCandidate == null) {
+      return players.get(ThreadLocalRandom.current().nextInt(players.size()));
+    }
+    int currentIndex = players.indexOf(lastOrganicPresidentialCandidate);
+    while (true) {
+      currentIndex++;
+      User player = players.get(currentIndex % players.size());
+      if (!deadPlayers.contains(player)) {
+        return player;
+      }
+    }
   }
 
   public boolean isVetoPowerEnabled() {
@@ -59,56 +68,36 @@ public class GameState {
   public GameBoard getGameBoard() {
     return GameBoard.gameBoardForNumberOfPlayers(players.size());
   }
-  
+
   public ImmutableList<User> getAlivePlayers() {
     return getPlayers().stream().filter(player -> !getDeadPlayers().contains(player))
         .collect(toImmutableList());
   }
 
   public ImmutableSet<User> getTermLimitedPlayers() {
+    if (previousGovernment == null) {
+      return ImmutableSet.of();
+    }
     ImmutableSet.Builder<User> termLimitedPlayers = ImmutableSet.builder();
-    if (players.size() - deadPlayers.size() > 5
-        && currentGovernment.containsKey(GovernmentRole.PRESIDENT)) {
+    if (players.size() - deadPlayers.size() > 5) {
       termLimitedPlayers.add(currentGovernment.get(GovernmentRole.PRESIDENT));
     }
-    if (currentGovernment.containsKey(GovernmentRole.CHANCELLOR)) {
-      termLimitedPlayers.add(currentGovernment.get(GovernmentRole.CHANCELLOR));
-    }
+    termLimitedPlayers.add(currentGovernment.get(GovernmentRole.CHANCELLOR));
     return termLimitedPlayers.build();
   }
 
   public GameStateBuilder toBuilder() {
-    return GameState.builder()
-        .players(players)
-        .readyPlayers(readyPlayers)
-        .investigatedPlayers(investigatedPlayers)
-        .currentGovernment(currentGovernment)
-        .currentCandidates(currentCandidates)
-        .deadPlayers(deadPlayers)
-        .hiddenData(hiddenData)
-        .policyDeck(policyDeck)
-        .discardPile(discardPile)
-        .votes(votes)
-        .state(state)
-        .randomPlayerOffset(randomPlayerOffset)
-        .round(round)
-        .numOfSpecialElections(numOfSpecialElections)
-        .fascistPolicies(fascistPolicies)
-        .liberalPolicies(liberalPolicies)
-        .electionCounter(electionCounter)
-        .gameResult(gameResult);
+    return GameState.builder().players(players).readyPlayers(readyPlayers)
+        .investigatedPlayers(investigatedPlayers).currentGovernment(currentGovernment)
+        .previousGovernment(previousGovernment).currentCandidates(currentCandidates)
+        .deadPlayers(deadPlayers).hiddenData(hiddenData).policyDeck(policyDeck)
+        .discardPile(discardPile).votes(votes)
+        .lastOrganicPresidentialCandidate(lastOrganicPresidentialCandidate).state(state)
+        .fascistPolicies(fascistPolicies).liberalPolicies(liberalPolicies)
+        .electionCounter(electionCounter).gameResult(gameResult);
   }
 
   public static class GameStateBuilder {
-    public GameStateBuilder incrementRound() {
-      round++;
-      return this;
-    }
-
-    public GameStateBuilder incrementNumOfSpecialElections() {
-      numOfSpecialElections++;
-      return this;
-    }
 
     public GameStateBuilder incrementFascistPolicies() {
       fascistPolicies++;
@@ -131,9 +120,8 @@ public class GameState {
         hiddenData.entrySet().stream().filter(entry -> !entry.getKey().equals(user))
             .forEach(mapBuilder::put);
       }
-      HiddenDataBuilder hiddenDataBuilder =
-          hiddenData != null && hiddenData.containsKey(user) ? hiddenData.get(user).toBuilder()
-              : HiddenData.builder();
+      HiddenDataBuilder hiddenDataBuilder = hiddenData != null && hiddenData.containsKey(user)
+          ? hiddenData.get(user).toBuilder() : HiddenData.builder();
       updater.accept(hiddenDataBuilder);
       mapBuilder.put(user, hiddenDataBuilder.build());
       hiddenData(mapBuilder.build());
